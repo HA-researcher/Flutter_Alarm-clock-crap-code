@@ -6,7 +6,7 @@ A new Flutter project.
 Flutter:3.38.5-stable
 
 ## 主要パッケージ
-mobile_scanner, flutter_riverpod, riverpod_annotation, freezed
+mobile_scanner, flutter_riverpod, riverpod_annotation, freezed, audioplayers
 
 ## ビルド方法
 このリポジトリをclone後に下記のコマンドを実行してください
