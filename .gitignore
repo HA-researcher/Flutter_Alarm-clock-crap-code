@@ -47,3 +47,34 @@ app.*.map.json
 *.freezed.dart
 *.g.dart
 
+# Secrets and credentials (Flutter / mobile)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Signing keys and certificates
+*.p12
+*.mobileprovision
+AuthKey_*.p8
+*.jks
+*.keystore
+android/key.properties
+android/**/key.properties
+
+# Generic private key/cert files
+*.pem
+*.key
+*.crt
+*.cer
+
+# Common cloud/service credential dumps
+*service-account*.json
+*service_account*.json
+*serviceAccount*.json
+firebase-adminsdk*.json
+
+# Firebase config files (exclude if you don't want project config public)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist

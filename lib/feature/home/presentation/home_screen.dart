@@ -11,8 +11,30 @@ class HomeScreen extends ConsumerWidget {
     final isSessionActive = ref
         .watch(homeScreenViewModelProvider)
         .isSessionActive;
+    final isAlarmActive = ref.watch(homeScreenViewModelProvider).isAlarmActive;
     return Scaffold(
-      body: Center(child: Text('Home Screen')),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(isSessionActive ? 'Session Active' : 'Session Inactive'),
+            ElevatedButton(
+              onPressed: isAlarmActive
+                  ? () {
+                      ref
+                          .read(homeScreenViewModelProvider.notifier)
+                          .setAlarmActive(false);
+                    }
+                  : () {
+                      ref
+                          .read(homeScreenViewModelProvider.notifier)
+                          .playAlarm();
+                    },
+              child: Text(isAlarmActive ? 'End Session' : 'Start Session'),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: isSessionActive
           ? null
           : FloatingActionButton(
