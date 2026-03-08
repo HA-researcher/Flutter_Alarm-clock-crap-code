@@ -39,6 +39,9 @@ dependencies:
   freezed_annotation: ^2.4.4
   mobile_scanner: ^7.2.0
   audioplayers: ^6.6.0
+  supabase_flutter: ^2.12.0
+  json_annotation: ^4.9.0
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +69,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/audio/alarm.mp3
 
   # To add assets to your application, add an assets section, like this:

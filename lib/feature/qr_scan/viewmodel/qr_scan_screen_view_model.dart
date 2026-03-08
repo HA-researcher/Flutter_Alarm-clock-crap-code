@@ -1,4 +1,5 @@
 import 'package:flutter_alarm_clock_crap_code/feature/home/viewmodel/home_screen_view_model.dart';
+import 'package:flutter_alarm_clock_crap_code/feature/room/provider/room_id_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -41,6 +42,11 @@ class QrScanScreenViewModel extends _$QrScanScreenViewModel {
     if (capture.barcodes.isEmpty) {
       return;
     }
+    final roomId = capture.barcodes.first.rawValue;
+    if (roomId == null || roomId.isEmpty) {
+      return;
+    }
+    ref.read(roomIdProvider.notifier).set(roomId);
     ref.read(homeScreenViewModelProvider.notifier).setSessionActive(true);
   }
 }
