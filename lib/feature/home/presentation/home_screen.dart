@@ -1,26 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_alarm_clock_crap_code/feature/home/usecase/home_use_case.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/home/viewmodel/home_screen_view_model.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/qr_scan/presentation/qr_scan_screen.dart';
-import 'package:flutter_alarm_clock_crap_code/feature/room/model/room.dart';
-import 'package:flutter_alarm_clock_crap_code/feature/room/provider/room_id_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  String _statusLabel(RoomStatus? status) {
-    return switch (status) {
-      RoomStatus.waiting => 'Waiting',
-      RoomStatus.alarming => 'Alarming',
-      RoomStatus.coding => 'Coding',
-      RoomStatus.reviewing => 'Reviewing',
-      RoomStatus.cleared => 'Cleared',
-      RoomStatus.penalty => 'Penalty',
-      RoomStatus.forceStopped => 'Force Stopped',
-      null => 'No Room',
-    };
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,6 +13,7 @@ class HomeScreen extends ConsumerWidget {
     final isSessionActive = homeState.isSessionActive;
     final isAlarmActive = homeState.isAlarmActive;
     final roomStatus = homeState.roomStatus;
+    final useCase = HomeUseCase();
 
     return Scaffold(
       body: Center(
@@ -36,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
           children: [
             Text(isSessionActive ? 'Session Active' : 'Session Inactive'),
             const SizedBox(height: 8),
-            Text('Status: ${_statusLabel(roomStatus)}'),
+            Text('Status: ${useCase.statusLabel(roomStatus)}'),
             const SizedBox(height: 16),
             if (isSessionActive && isAlarmActive)
               ElevatedButton(
@@ -45,13 +31,9 @@ class HomeScreen extends ConsumerWidget {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () async {
-                  final roomId = ref.read(roomIdProvider);
-                  if (roomId != null) {
-                    await Supabase.instance.client
-                        .from('rooms')
-                        .update({'status': 'force_stopped'})
-                        .eq('id', roomId);
-                  }
+                  await ref
+                      .read(homeScreenViewModelProvider.notifier)
+                      .onTapEmergencyButton();
                 },
                 child: const Text('Emergency Stop'),
               ),

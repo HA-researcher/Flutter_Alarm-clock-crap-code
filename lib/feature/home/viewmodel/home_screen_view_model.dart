@@ -1,8 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/room/model/room.dart';
+import 'package:flutter_alarm_clock_crap_code/feature/room/provider/room_id_provider.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/room/provider/room_stream_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home_screen_view_model.freezed.dart';
 part 'home_screen_view_model.g.dart';
@@ -71,5 +73,15 @@ class HomeScreenViewModel extends _$HomeScreenViewModel {
   void playAlarm() async {
     setAlarmActive(true);
     await _audioPlayer.play(AssetSource('audio/alarm.mp3'));
+  }
+
+  Future<void> onTapEmergencyButton() async {
+    final roomId = ref.read(roomIdProvider);
+    if (roomId != null) {
+      await Supabase.instance.client
+          .from('rooms')
+          .update({'status': 'force_stopped'})
+          .eq('id', roomId);
+    }
   }
 }
