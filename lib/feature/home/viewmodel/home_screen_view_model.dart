@@ -2,7 +2,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/room/model/room.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/room/provider/room_id_provider.dart';
 import 'package:flutter_alarm_clock_crap_code/feature/room/provider/room_stream_provider.dart';
+import 'package:flutter_alarm_clock_crap_code/feature/room/repository/local_room_repository.dart';
+import 'package:flutter_alarm_clock_crap_code/feature/room/service/alarm_foreground_service.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -30,6 +33,23 @@ class HomeScreenViewModel extends _$HomeScreenViewModel {
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
     _audioPlayer.onPlayerComplete.listen((s) {
       setAlarmActive(false);
+    });
+
+    // バックグラウンド isolate からのメッセージ受信
+    void onTaskData(Object data) {
+      if (data is Map && data['action'] == 'exit_room') {
+        _exitRoom();
+      }
+    }
+    FlutterForegroundTask.addTaskDataCallback(onTaskData);
+    ref.onDispose(() => FlutterForegroundTask.removeTaskDataCallback(onTaskData));
+
+    // roomId がセットされたらローカル保存 + フォアグラウンドサービス起動
+    ref.listen(roomIdProvider, (prev, next) {
+      if (next != null && prev == null) {
+        ref.read(localRoomRepositoryProvider.notifier).saveRoomId(next);
+        AlarmForegroundService.start();
+      }
     });
 
     ref.listen(roomStreamProvider, (prev, next) {
@@ -81,6 +101,8 @@ class HomeScreenViewModel extends _$HomeScreenViewModel {
 
   void _exitRoom() {
     state = state.copyWith(isSessionActive: false, roomStatus: null);
+    ref.read(localRoomRepositoryProvider.notifier).clearRoomId();
+    AlarmForegroundService.stop();
     ref.read(roomIdProvider.notifier).clear();
   }
 
