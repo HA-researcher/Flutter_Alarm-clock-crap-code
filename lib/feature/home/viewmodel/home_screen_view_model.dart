@@ -45,11 +45,15 @@ class HomeScreenViewModel extends _$HomeScreenViewModel {
             playAlarm();
           }
         case RoomStatus.coding:
+          if (state.isAlarmActive) {
+            setAlarmActive(false);
+          }
         case RoomStatus.cleared:
         case RoomStatus.forceStopped:
           if (state.isAlarmActive) {
             setAlarmActive(false);
           }
+          _exitRoom();
         case RoomStatus.waiting:
         case RoomStatus.reviewing:
           break;
@@ -73,6 +77,11 @@ class HomeScreenViewModel extends _$HomeScreenViewModel {
   void playAlarm() async {
     setAlarmActive(true);
     await _audioPlayer.play(AssetSource('audio/alarm.mp3'));
+  }
+
+  void _exitRoom() {
+    state = state.copyWith(isSessionActive: false, roomStatus: null);
+    ref.read(roomIdProvider.notifier).clear();
   }
 
   Future<void> onTapEmergencyButton() async {
